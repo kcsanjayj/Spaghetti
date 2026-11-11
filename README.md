@@ -1,4 +1,4 @@
-# ⚡ Aetherion — Evaluation-Driven Agentic RAG
+# ⚡ MEI — Evaluation-Driven Agentic RAG
 
 > **A self-evaluating RAG system that retrieves evidence, generates answers, critiques them, and automatically refines weak responses before finalization.**
 
@@ -6,7 +6,7 @@
 
 ## ⚡ 30-Second Overview
 
-**Aetherion is not a single LLM call.**
+** MEI is not a single LLM call.**
 
 It adds an evaluation and refinement loop on top of traditional RAG:
 
@@ -49,7 +49,7 @@ User Query
 
 # 🎥 Live Demo
 
-**Try Aetherion:**
+**Try MEI:**
 https://agentic-rag-gamma.vercel.app
 
 ---
@@ -163,7 +163,7 @@ Configure the required API keys through environment variables.
 
 # 📊 Evaluation
 
-Aetherion is designed to compare:
+MEI is designed to compare:
 
 ```text id="4v4t4q"
 Baseline RAG
@@ -188,7 +188,7 @@ Key metrics:
 
 ---
 
-## ⭐ Why Aetherion?
+## ⭐ Why MEI?
 
 Traditional RAG:
 
@@ -196,13 +196,13 @@ Traditional RAG:
 Retrieve → Generate → Return
 ```
 
-Aetherion:
+MEI:
 
 ```text id="r6f9gq"
 Retrieve → Generate → Evaluate → Refine → Finalize
 ```
 
-> **Aetherion explores what happens when evaluation becomes a first-class part of the RAG generation pipeline.**
+> **MEI explores what happens when evaluation becomes a first-class part of the RAG generation pipeline.**
 
 ---
 
