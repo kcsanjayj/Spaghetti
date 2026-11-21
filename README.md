@@ -74,12 +74,13 @@ Inner layers never import outer ones, so the whole pipeline is tested with fake 
 
 The eval mock is extractive, so these numbers prove **plumbing and retrieval, not model quality**. Run `python run.py eval --model qwen3:1.7b` on your machine for real numbers. Details and honest limits: [docs/EVALUATION.md](docs/EVALUATION.md).
 
-## Deploy the UI on Cloudflare Pages
-The page is static, so Cloudflare Pages can host it (output directory `frontend`, no build step). Your documents and model stay on your computer: the hosted page talks to your own backend at `http://127.0.0.1:8000`.
+## Use the live Cloudflare app
+Open [Spaghetti](https://spaghetti.kcsanjayj.workers.dev/). The web UI is hosted on Cloudflare; chat, documents and Ollama stay on your computer. To use chat, open PowerShell in the project folder and run:
 ```bash
-python run.py --allow-origin https://<your-project>.pages.dev
+python -m pip install -r requirements.txt
+python run.py --allow-origin https://spaghetti.kcsanjayj.workers.dev
 ```
-Cloudflare cannot run the Python backend, the Rust core or Ollama, which is the point of the design. Steps, browser support and the security trade-off: [docs/DEPLOY.md](docs/DEPLOY.md).
+Keep that terminal open, then open the live link in Chrome or Edge. If Ollama is not installed, run `python run.py setup` from the project folder. For hosting your own copy on Cloudflare Pages and more details, see [docs/DEPLOY.md](docs/DEPLOY.md).
 
 ## Project layout
 ```text
@@ -93,7 +94,7 @@ tests/            85 tests      docs/   architecture · models · evaluation · 
 
 ## Limitations and roadmap
 - Keyword search (no synonyms), text, PDF and DOCX documents, small models make mistakes.
-- Not verified here: a real Ollama install, real model quality/speed, the live Cloudflare deployment, Safari.
+- Not verified here: a real Ollama install, real model quality/speed, end-to-end chat from the live Cloudflare UI, Safari.
 - Next: embeddings behind the same `rank` interface and authenticated remote mode.
 
 ## What I learned
