@@ -61,6 +61,16 @@ def cmd_serve(args):
         os.environ["SPAGHETTI_DEMO"] = "1"
     if args.allow_origin:
         os.environ["SPAGHETTI_ALLOW_ORIGIN"] = ",".join(args.allow_origin)
+    if not args.demo:
+        from spaghetti.config import Settings
+        from spaghetti.runtimes import ollama
+        ollama_status = ollama.start(Settings().ollama_host)
+        if ollama_status["state"] == "running":
+            print("🏠 Ollama is running.")
+        elif ollama_status["state"] == "installed":
+            print("ℹ️  Ollama is installed but could not be started.")
+        else:
+            print("ℹ️  Ollama is not installed. Run python run.py setup to install it.")
     if not args.no_browser:
         threading.Timer(1.0, webbrowser.open, [f"http://127.0.0.1:{args.port}"]).start()
     from spaghetti.__main__ import main

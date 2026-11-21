@@ -75,5 +75,56 @@ class SetupCommandTests(unittest.TestCase):
         serve.assert_called_once_with(self.args)
 
 
+class ServeCommandTests(unittest.TestCase):
+    def setUp(self):
+        self.args = argparse.Namespace(
+            port=8000,
+            engine="python",
+            demo=False,
+            allow_origin=None,
+            no_browser=True,
+        )
+
+    def test_starts_ollama_before_serving(self):
+        with (
+            patch("spaghetti.engine.loader.find_binary", return_value="spaghetti-core"),
+            patch("spaghetti.runtimes.ollama.start", return_value={"state": "running", "installed": []}) as start,
+            patch("spaghetti.__main__.main") as serve,
+        ):
+            launcher.cmd_serve(self.args)
+
+        start.assert_called_once_with("http://127.0.0.1:11434")
+        serve.assert_called_once_with()
+
+    def test_demo_mode_does_not_start_ollama(self):
+        self.args.demo = True
+        with (
+            patch("spaghetti.engine.loader.find_binary", return_value="spaghetti-core"),
+            patch("spaghetti.runtimes.ollama.start") as start,
+            patch("spaghetti.__main__.main"),
+        ):
+            launcher.cmd_serve(self.args)
+
+        start.assert_not_called()
+
+
+class OllamaStartupTests(unittest.TestCase):
+    def test_does_not_spawn_a_second_server_when_already_running(self):
+        from spaghetti.runtimes import ollama
+
+        with (
+            patch("spaghetti.runtimes.ollama.find_binary", return_value="ollama"),
+            patch(
+                "spaghetti.runtimes.ollama.status",
+                return_value={"state": "running", "installed": []},
+            ),
+            patch("spaghetti.runtimes.ollama.subprocess.Popen") as popen,
+        ):
+            status = ollama.start("http://127.0.0.1:11434")
+
+        self.assertEqual(status["state"], "running")
+        popen.assert_not_called()
+
+
 if __name__ == "__main__":
     unittest.main()
