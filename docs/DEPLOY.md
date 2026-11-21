@@ -12,9 +12,9 @@ Cloudflare serves **only the static UI**. Chat, documents, the Rust core and the
 The deployed UI is [spaghetti.kcsanjayj.workers.dev](https://spaghetti.kcsanjayj.workers.dev/). To use chat, open PowerShell in the project folder and run:
 ```powershell
 python -m pip install -r requirements.txt
-python run.py --allow-origin https://spaghetti.kcsanjayj.workers.dev
+python run.py setup --no-browser --allow-origin https://spaghetti.kcsanjayj.workers.dev
 ```
-Keep the terminal open and use the live link in Chrome or Edge. If Ollama is not installed, run `python run.py setup` first. The model and documents remain local.
+The setup checks Ollama, asks before installing it or downloading a recommended model, and starts the local backend. Keep the terminal open and use the live link in Chrome or Edge. Model downloads need internet once; afterwards the model and documents remain local, and chat can work offline.
 
 ## Deploy your own copy to Cloudflare Pages
 **Git integration:** Pages → Create project → connect the repo → framework preset *None*, build command *(empty)*, output directory `frontend`.

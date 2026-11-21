@@ -2,7 +2,7 @@
 
 **Chat with your own documents, privately, on your own laptop.** Five small "agents" plan, search, write, check and serve each answer using a model that runs locally through [Ollama](https://ollama.com). No cloud, no accounts, no API keys.
 
-![Python](https://img.shields.io/badge/Python-3.10+-000?logo=python&logoColor=white) ![Rust](https://img.shields.io/badge/Rust-core-000?logo=rust&logoColor=white) ![JavaScript](https://img.shields.io/badge/JavaScript-no%20framework-000?logo=javascript&logoColor=white) ![Tests](https://img.shields.io/badge/tests-85%20passing-000) ![a11y](https://img.shields.io/badge/axe--core-0%20violations-000)
+![Python](https://img.shields.io/badge/Python-3.10+-000?logo=python&logoColor=white) ![Rust](https://img.shields.io/badge/Rust-core-000?logo=rust&logoColor=white) ![JavaScript](https://img.shields.io/badge/JavaScript-no%20framework-000?logo=javascript&logoColor=white) ![Tests](https://img.shields.io/badge/tests-87%20passing-000) ![a11y](https://img.shields.io/badge/axe--core-0%20violations-000)
 
 ![Desktop](docs/screenshots/desktop-4-answer.png)
 <p align="center"><img src="docs/screenshots/tablet-4-answer.png" height="400" alt="Tablet"> <img src="docs/screenshots/mobile-3-streaming.png" height="400" alt="Phone, live streaming"> <img src="docs/screenshots/mobile-6-light-mode.png" height="400" alt="Light mode"></p>
@@ -20,19 +20,17 @@ Small local models are private but slow and easy to fool. I wanted to see how fa
 | 📎 **Your documents** | Paperclip or drag-and-drop: PDF, DOCX and text formats. Full-document summaries process every chunk. Deletion removes the pantry copy and redacts saved answers that cite it while preserving chat history. |
 | ⚡ **Fast by default** | One model call for ordinary questions. Full-document summaries use bounded map/reduce calls; opt-in *Careful mode* adds an AI judge, widens retrieval on weak answers, and retries once. |
 | 🌗 **True-OLED UI** | Black or white theme with a smooth reveal. One codebase for desktop, tablet and phone. |
-| 📊 **Measured** | 28-case evaluation harness with CI gates, 85 tests, 0 accessibility violations. |
+| 📊 **Measured** | 28-case evaluation harness with CI gates, 87 tests, 0 accessibility violations. |
 
 ## Quick start
 Run these commands from the repository root (the folder containing `run.py`). If VS Code opened the enclosing `spaghetti-project` folder, first run `cd .\spaghetti`:
 ```bash
 python -m pip install -r requirements.txt
-python run.py            # opens http://127.0.0.1:8000
-python run.py setup      # pick a model for your hardware + write a one-click Ollama install script
-python run.py test       # 85 tests
-python run.py eval       # evaluation harness (see docs/EVALUATION.md)
+python run.py setup      # first time: guided Ollama/model setup, then starts the app
 ```
 Needs Python 3.10+. Rust is optional: if `cargo` is installed the fast core is built automatically, otherwise a pure-Python twin runs and tests prove both agree.
-First run: the app finds your Ollama models and picks one. If Ollama is missing, the model menu offers a setup script, a manual link and a **Re-check** button.
+The first setup checks Ollama, asks before installing it or downloading a recommended model, then starts the app. Model downloads need internet once; after they finish, chat runs locally and can work offline. Later, start the app with `python run.py`.
+For tests, run `python run.py test` (87 tests); for the evaluation harness, run `python run.py eval`.
 
 ## Local configuration
 `run.py` loads the root `.env` before parsing CLI defaults. The real `.env` is ignored by git; `.env.example` is the safe template. Edit `SPAGHETTI_DATA` to choose where local documents are stored (relative paths resolve from the project root). Process environment variables take precedence over `.env`, and CLI options take precedence over both.
@@ -65,7 +63,7 @@ Inner layers never import outer ones, so the whole pipeline is tested with fake 
 ## Quality, and how to reproduce it
 | Area | Result | Command |
 |---|---|---|
-| Tests | 85 passing (unit, integration, Rust parity, harness) | `python run.py test` |
+| Tests | 87 passing (unit, integration, Rust parity, harness) | `python run.py test` |
 | Evaluation | hit@k 1.0 · citation 1.0 · abstention 1.0 · injection resistance 1.0 (26 gated cases, offline mock) | `python run.py eval` |
 | Retrieval only (no model) | same gates, plus k × coverage ablation | `python run.py eval --retrieval-only` |
 | Performance | 0 long tasks, worst frame 17 ms while streaming (headless Chromium, 1-core sandbox) | Playwright script in docs |
@@ -76,11 +74,11 @@ The eval mock is extractive, so these numbers prove **plumbing and retrieval, no
 
 ## Use the live Cloudflare app
 Open [Spaghetti](https://spaghetti.kcsanjayj.workers.dev/). The web UI is hosted on Cloudflare; chat, documents and Ollama stay on your computer. To use chat, open PowerShell in the project folder and run:
-```bash
+```powershell
 python -m pip install -r requirements.txt
-python run.py --allow-origin https://spaghetti.kcsanjayj.workers.dev
+python run.py setup --no-browser --allow-origin https://spaghetti.kcsanjayj.workers.dev
 ```
-Keep that terminal open, then open the live link in Chrome or Edge. If Ollama is not installed, run `python run.py setup` from the project folder. For hosting your own copy on Cloudflare Pages and more details, see [docs/DEPLOY.md](docs/DEPLOY.md).
+Keep that terminal open, then open the live link in Chrome or Edge. For hosting your own copy on Cloudflare Pages and more details, see [docs/DEPLOY.md](docs/DEPLOY.md).
 
 ## Project layout
 ```text
@@ -89,7 +87,7 @@ backend/spaghetti domain · kitchen · advisor · runtimes · pantry · engine �
 core-rust/        std-only Rust crate (chunk, BM25, overlap, hardware probe)
 frontend/         index.html · css · js (chat, picker, docs, theme)
 eval/             dataset · metrics · harness · thresholds · baseline
-tests/            85 tests      docs/   architecture · models · evaluation · deploy · defense
+tests/            87 tests      docs/   architecture · models · evaluation · deploy · defense
 ```
 
 ## Limitations and roadmap

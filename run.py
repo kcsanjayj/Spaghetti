@@ -87,24 +87,73 @@ def cmd_eval(args):
     sys.exit(main(args.rest))
 
 
-def cmd_setup(_):
-    """Detect hardware, pick a model that fits, write the one-click setup script (and offer to run it)."""
+def _download_model(ollama, host: str, tag: str) -> None:
+    print(f"⬇️  Downloading {tag} (this may take a while the first time)...")
+    finished = False
+    line_width = 0
+    for event in ollama.pull(host, tag):
+        if event["type"] == "error":
+            raise SystemExit(f"Ollama could not download the model: {event['message']}")
+        if event["type"] == "done":
+            finished = True
+            break
+        if event["type"] == "progress":
+            status = event.get("status", "")
+            percent = event.get("percent")
+            line = f"{status} ({percent}%)" if percent is not None else status
+            print(f"\r{line.ljust(line_width)}", end="", flush=True)
+            line_width = max(line_width, len(line))
+    if not finished:
+        raise SystemExit("Ollama stopped the model download before it finished.")
+    if line_width:
+        print()
+    print(f"✅ {tag} is ready.")
+
+
+def cmd_setup(args):
+    """Install or start Ollama, download a suitable model, then launch Spaghetti."""
     from spaghetti.advisor.catalog import recommend_default
     from spaghetti.advisor.scripts import make_script
     from spaghetti.config import Settings
     from spaghetti.engine import load_engine
     from spaghetti.runtimes import ollama
-    hw, st = load_engine(Settings().engine).hardware(), ollama.status(Settings().ollama_host)
+    settings = Settings()
+    hw = load_engine(settings.engine).hardware()
+    st = ollama.status(settings.ollama_host)
     ram, vram = hw["ram_mb"] / 1024, hw["vram_mb"] / 1024
     tag = recommend_default(ram, vram)
     print(f"💻 {hw['os']} {hw['arch']} | {hw['cores']} cores | {ram:.1f} GB RAM | GPU: {hw['gpu'] or 'none detected'}")
     print(f"🏠 Ollama: {st['state']}   🎯 Recommended model: {tag}")
-    name, content = make_script("windows" if hw["os"] == "windows" else "unix", [tag])
-    path = ROOT / name
-    path.write_text(content, encoding="utf-8")
-    print(f"📝 Wrote {path.name} (open it to read what it does).")
-    if input("Run it now? [y/N] ").strip().lower() == "y":
-        subprocess.run(["cmd", "/c", str(path)] if hw["os"] == "windows" else ["bash", str(path)])
+    if st["state"] == "missing":
+        name, content = make_script("windows" if hw["os"] == "windows" else "unix", [tag])
+        path = ROOT / name
+        path.write_text(content, encoding="utf-8")
+        print(f"📝 Wrote {path.name}. It will install Ollama and download {tag}.")
+        if input("Run setup now? [y/N] ").strip().lower() != "y":
+            print(f"Setup paused. Run {path.name} when you're ready, then run python run.py.")
+            return
+        result = subprocess.run(
+            ["cmd", "/c", str(path)] if hw["os"] == "windows" else ["bash", str(path)],
+            cwd=ROOT,
+        )
+        if result.returncode:
+            raise SystemExit(f"Ollama setup failed with exit code {result.returncode}.")
+
+    st = ollama.start(settings.ollama_host)
+    if st["state"] != "running":
+        raise SystemExit("Ollama is not running. Install it from https://ollama.com/download and try again.")
+    if tag not in st["installed"]:
+        print(f"Model {tag} is not downloaded yet.")
+        if input("Download it now? [y/N] ").strip().lower() != "y":
+            print("Setup paused. Run python run.py setup when you're ready to download the model.")
+            return
+        _download_model(ollama, settings.ollama_host, tag)
+        st = ollama.status(settings.ollama_host)
+        if tag not in st["installed"]:
+            raise SystemExit(f"Ollama did not confirm that {tag} was installed.")
+
+    print("✅ Setup complete. Starting Spaghetti...")
+    cmd_serve(args)
 
 
 def cmd_check(_):
