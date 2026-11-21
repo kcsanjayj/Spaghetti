@@ -29,7 +29,7 @@ python -m pip install -r requirements.txt
 python run.py setup      # first time: guided Ollama/model setup, then starts the app
 ```
 Needs Python 3.10+. Rust is optional: if `cargo` is installed the fast core is built automatically, otherwise a pure-Python twin runs and tests prove both agree.
-The first setup checks Ollama, asks before installing it or downloading a recommended model, then starts the app. Model downloads need internet once; after they finish, chat runs locally and can work offline. Later, `python run.py` starts Ollama if it is installed and not already running, then starts the app. In demo mode (`python run.py --demo`), Ollama is not started.
+The first setup checks Ollama, asks before installing it or downloading a recommended model, then starts the app. Model downloads need internet once; after they finish, chat runs locally and can work offline. Later, `python run.py` starts Ollama in the background if it is installed and not already running, while the app becomes available immediately. In demo mode (`python run.py --demo`), Ollama is not started.
 For tests, run `python run.py test` (87 tests); for the evaluation harness, run `python run.py eval`.
 
 ## Local configuration

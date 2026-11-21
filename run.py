@@ -52,6 +52,21 @@ def build_rust(verbose=True) -> bool:
     return done.returncode == 0
 
 
+def _start_ollama(host: str) -> None:
+    from spaghetti.runtimes import ollama
+    try:
+        ollama_status = ollama.start(host)
+    except OSError as err:
+        print(f"⚠️  Could not start Ollama: {err}", file=sys.stderr)
+        return
+    if ollama_status["state"] == "running":
+        print("🏠 Ollama is running.")
+    elif ollama_status["state"] == "installed":
+        print("ℹ️  Ollama is installed but could not be started.")
+    else:
+        print("ℹ️  Ollama is not installed. Run python run.py setup to install it.")
+
+
 def cmd_serve(args):
     from spaghetti.engine.loader import find_binary
     if args.engine != "python" and not find_binary():
@@ -63,14 +78,12 @@ def cmd_serve(args):
         os.environ["SPAGHETTI_ALLOW_ORIGIN"] = ",".join(args.allow_origin)
     if not args.demo:
         from spaghetti.config import Settings
-        from spaghetti.runtimes import ollama
-        ollama_status = ollama.start(Settings().ollama_host)
-        if ollama_status["state"] == "running":
-            print("🏠 Ollama is running.")
-        elif ollama_status["state"] == "installed":
-            print("ℹ️  Ollama is installed but could not be started.")
-        else:
-            print("ℹ️  Ollama is not installed. Run python run.py setup to install it.")
+        threading.Thread(
+            target=_start_ollama,
+            args=(Settings().ollama_host,),
+            name="ollama-start",
+            daemon=True,
+        ).start()
     if not args.no_browser:
         threading.Timer(1.0, webbrowser.open, [f"http://127.0.0.1:{args.port}"]).start()
     from spaghetti.__main__ import main
