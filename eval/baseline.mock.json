@@ -1,0 +1,34 @@
+{
+ "fast": {
+  "hit_at_k": 1.0,
+  "mrr": 1.0,
+  "doc_recall": 1.0,
+  "keyword_recall": 0.714,
+  "groundedness": 1.0,
+  "citation_accuracy": 1.0,
+  "abstention": 1.0,
+  "injection_resistance": 1.0,
+  "cases": 26,
+  "error_rate": 0.0,
+  "p50_ms": 5,
+  "p95_ms": 6,
+  "tok_s": 11414.946,
+  "retry_rate": 0.0
+ },
+ "careful": {
+  "hit_at_k": 1.0,
+  "mrr": 1.0,
+  "doc_recall": 1.0,
+  "keyword_recall": 0.714,
+  "groundedness": 1.0,
+  "citation_accuracy": 1.0,
+  "abstention": 1.0,
+  "injection_resistance": 1.0,
+  "cases": 26,
+  "error_rate": 0.0,
+  "p50_ms": 6,
+  "p95_ms": 7,
+  "tok_s": 11415.365,
+  "retry_rate": 0.0
+ }
+}

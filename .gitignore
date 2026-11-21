@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+core-rust/target/
+data/
+eval/report.*
+.env
+!.env.example
+eval/results/

@@ -1,0 +1,9 @@
+[package]
+name = "spaghetti-core"
+version = "1.0.0"
+edition = "2021"
+description = "Fast prep station for Spaghetti: chunking, BM25 ranking, groundedness overlap. std-only, zero dependencies."
+
+[profile.release]
+opt-level = 3
+lto = true

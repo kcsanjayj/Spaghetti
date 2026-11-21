@@ -1,0 +1,17 @@
+name: ci
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: python run.py build                                  # compile the Rust core
+      - run: (cd core-rust && cargo test --quiet)
+      - run: python run.py test                                   # unit + integration tests
+      - run: python run.py eval --retrieval-only                  # retrieval quality gate (no model needed)
+      - run: python run.py eval --baseline eval/baseline.mock.json  # full pipeline gate + regression check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: eval-report, path: eval/results/ }
